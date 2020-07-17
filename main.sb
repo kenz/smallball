@@ -1,0 +1,115 @@
+STAGE1:
+width = 7
+mapx = ""
+mapx = mapx + "XXXXXXX"
+mapx = mapx + "X  XX_X"
+mapx = mapx + "X O_OYX"
+mapx = mapx + "X  X  X"
+mapx = mapx + "X_O   X"
+mapx = mapx + "XXXXXXX"
+SETSTAGE:
+count = Text.GetLength(mapx)
+SHOWMAP:
+userIndex = 0
+
+For i=1 To count
+  maps[i] = Text.GetSubText(mapx,i,1)
+EndFor
+While "True"
+  ballCount = 0
+  For i=1 To count
+    If maps[i] = "X" then ' Wall'
+      TextWindow.ForegroundColor="White"
+    ElseIf maps[i] = "Y" Then 'User'
+      TextWindow.ForegroundColor="Red"
+      userIndex = i
+    ElseIf maps[i] = "v" Then 'UserInHall'
+      TextWindow.ForegroundColor="DarkRed"
+      userIndex = i
+    ElseIf maps[i] = "O" Then 'Ball'
+      TextWindow.ForegroundColor="Yellow"
+      ballCount = ballCount + 1
+    ElseIf maps[i] = "o" Then 'BallInHall'
+      TextWindow.ForegroundColor="DarkYellow"
+    ElseIf maps[i] = "_" Then 'Hall'
+      TextWindow.ForegroundColor="Green"
+    EndIf
+    TextWindow.Write(maps[i])
+    If math.Remainder(i,width) = 0 Then
+      TextWindow.WriteLine("")    
+    EndIf
+  EndFor
+  If ballCount = 0 Then
+    Goto Clear
+  EndIf
+  TextWindow.WriteLine("")
+  TextWindow.WriteLine("move")    
+  TextWindow.WriteLine(" 8")    
+  TextWindow.WriteLine("4 6")    
+  TextWindow.WriteLine(" 2")
+  TextWindow.Write(" >")
+
+  move = TextWindow.ReadNumber()
+  If move = 8 Then 'Move up'
+    onePoint = userIndex-width
+    twoPoint = onePoint-width
+  ElseIf move = 4 Then 'Move left'
+    onePoint = userIndex-1
+    twoPoint = userIndex-2
+  Elseif move = 6 Then 'Move right'
+    onePoint = userIndex+1
+    twoPoint = userIndex+2
+  Elseif move = 2 Then  'Move down'
+    onePoint = userIndex+width
+    twoPoint = onePoint+width
+  EndIf
+
+  If (maps[onePoint] = "O" Or maps[onePoint] = "o") And (maps[twoPoint] = " " Or maps[twoPoint] = "_") Then
+    'Move stone'
+    If maps[twoPoint] = " " Then
+      maps[twoPoint] = "O"
+    Else
+      maps[twoPoint] = "o"
+    EndIf  
+    If maps[onePoint] = "O" Then
+      maps[onePoint] = " "
+    Else
+      maps[onePoint] = "_"
+    EndIf 
+  EndIf 
+  If maps[onePoint] = " " Or maps[onePoint] = "_" Then
+    'Move user'
+    If maps[onePoint] = " " Then
+      maps[onePoint] = "Y"
+    Else
+      maps[onePoint] = "v"
+    EndIf
+    If maps[userIndex] = "Y" Then
+      maps[userIndex] = " "
+    Else
+      maps[userIndex] = "_"
+    EndIf
+  EndIf
+
+  TextWindow.Clear()
+EndWhile
+Clear:
+For i=1 To 20
+  TextWindow.Clear()
+  If math.Remainder(i,2) = 0 Then
+    TextWindow.Write(" ")    
+  EndIf
+  TextWindow.ForegroundColor = "Blue"
+  TextWindow.Write("v(^_^)v ")
+  TextWindow.ForegroundColor = "Cyan"
+  TextWindow.Write("v(^_^)v ")
+  TextWindow.ForegroundColor = "Green"
+  TextWindow.Write("v(^_^)v ")
+  TextWindow.ForegroundColor = "Magenta"
+  TextWindow.Write("v(^_^)v ")
+  TextWindow.ForegroundColor = "Red"
+  TextWindow.WriteLine("v(^_^)v")
+  Program.Delay(300)
+EndFor
+TextWindow.ForegroundColor = "White"
+TextWindow.WriteLine("Clear")
